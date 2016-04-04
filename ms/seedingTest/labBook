@@ -12,4 +12,8 @@ alex@Mint17-HP-Studio-XPS-1645 ~/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorA
 N 0 5 -eG 0.000582262 1318.18 -eG 0.00232905 -329.546 -eG 0.00931619 82.3865 -eG 0.0372648 -20.5966 -eG 0.149059 5.14916 -eN 0.596236 0.5 -seeds 0.05 0.99 0.75 > ms_seeds_0.05_0.99_0.75_ver2
 alex@Mint17-HP-Studio-XPS-1645 ~/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/ms/seedingTest $ diff ms_seeds_0.05_0.99_0.75_ver1 ms_seeds_0.05_0.99_0.75_ver2
 
-# this should be more random though. so I'll generate my random numbers in R. See msSeeds.R
+# woop there's no difference
+# these seeds should be more random though. so I'll generate my random numbers in R. See msSeeds.R (generated the following)
+> seeds = runif(3)
+> seeds
+[1] 0.5016129 0.6325370 0.5415699

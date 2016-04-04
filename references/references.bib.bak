@@ -1,0 +1,65 @@
+% This file was created with JabRef 2.10b2.
+% Encoding: UTF-8
+
+
+@Article{hellenthal2007mshot,
+  Title                    = {msHOT: modifying Hudson's ms simulator to incorporate crossover and gene conversion hotspots},
+  Author                   = {Hellenthal, Garrett and Stephens, Matthew},
+  Journal                  = {Bioinformatics},
+  Year                     = {2007},
+  Number                   = {4},
+  Pages                    = {520--521},
+  Volume                   = {23},
+
+  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/papers/Hudson 2002 ms README.pdf:PDF},
+  Publisher                = {Oxford Univ Press}
+}
+
+@Article{hudson2002generating,
+  Title                    = {Generating samples under a Wright--Fisher neutral model of genetic variation},
+  Author                   = {Hudson, Richard R},
+  Journal                  = {Bioinformatics},
+  Year                     = {2002},
+  Number                   = {2},
+  Pages                    = {337--338},
+  Volume                   = {18},
+
+  Publisher                = {Oxford Univ Press}
+}
+
+@Article{li2011inference,
+  Title                    = {Inference of human population history from individual whole-genome sequences},
+  Author                   = {Li, Heng and Durbin, Richard},
+  Journal                  = {Nature},
+  Year                     = {2011},
+  Number                   = {7357},
+  Pages                    = {493--496},
+  Volume                   = {475},
+
+  Publisher                = {Nature Publishing Group}
+}
+
+@Article{li2009sequence,
+  Title                    = {The sequence alignment/map format and SAMtools},
+  Author                   = {Li, Heng and Handsaker, Bob and Wysoker, Alec and Fennell, Tim and Ruan, Jue and Homer, Nils and Marth, Gabor and Abecasis, Goncalo and Durbin, Richard and others},
+  Journal                  = {Bioinformatics},
+  Year                     = {2009},
+  Number                   = {16},
+  Pages                    = {2078--2079},
+  Volume                   = {25},
+
+  Publisher                = {Oxford Univ Press}
+}
+
+@Article{rabiner1989tutorial,
+  Title                    = {A tutorial on hidden Markov models and selected applications in speech recognition},
+  Author                   = {Rabiner, Lawrence R},
+  Journal                  = {Proceedings of the IEEE},
+  Year                     = {1989},
+  Number                   = {2},
+  Pages                    = {257--286},
+  Volume                   = {77},
+
+  Publisher                = {IEEE}
+}
+

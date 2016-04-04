@@ -10,3 +10,14 @@
 [a1646282@l01 msmc]$ sbatch msmcTest1.sh
 Submitted batch job 561301
 #  ut i can't find it? on squeue
+
+# 4/4/16
+# my MSMC isn't working. Jono suggests this is because it needs to be compiled on the supercomputer. Therefore...
+[a1646282@l01 MSMC]$ git clone https://github.com/stschiff/msmc
+[a1646282@l01 MSMC]$ cd msmc
+[a1646282@l01 msmc]$ make
+dmd -O /usr/lib/libgsl.a /usr/lib/libgslcblas.a -odbuild -ofbuild/msmc model/propagation_core_naiveImpl.d model/stateVec.d model/transition_rate.d model/rate_integrator.d model/propagation_core_fastImpl.d model/stateVecAllocator.d model/gsl_matrix_vector.d model/msmc_hmm.d model/triple_index.d model/propagation_core.d model/time_intervals.d model/msmc_model.d model/triple_index_marginal.d model/emission_rate.d model/data.d model/coalescence_rate.d powell.d brent.d maximization_step.d expectation_step.d msmc.d branchlength.d logger.d
+make: dmd: Command not found
+make: *** [build/msmc] Error 127
+
+# it didn't work, no D compiler. Have emailed HPC support.
