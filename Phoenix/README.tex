@@ -1,0 +1,127 @@
+\documentclass[a4]{article}
+\usepackage{hyperref,array,amsmath,amsfonts}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{-0.5in}
+%\setlength{\bottommargin}{-0.5in}
+\setlength{\textheight}{25cm}
+%opening
+\title{Alex's Phoenix Guide}
+\author{Alex Jackson}
+
+% % % % % % % % % % % % %
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{black},
+	keywordstyle=\color{black},
+	commentstyle=\color{black},
+	stringstyle=\color{black},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=1
+}
+% % % % % % % % % % % % %
+\begin{document}
+
+\maketitle
+
+\section{Logging in}
+In the command line:
+\begin{lstlisting}
+ssh aXXXXXXX@phoenix.adelaide.edu.au
+\end{lstlisting}
+\textcolor{red}{28/3/16 I can connect via the above but not via the below. When I ssh in I think I get into l01 though anyway. It appears that Phoenix only allows you to connect through the university. At the moment, getting around this at home by ssh into dis, then ssh into Phoenix. Will get VPN set up sometime. Okay, VPN is working woopwoop.}
+
+is what is says on the wiki but on the email the address is slightly different,
+\begin{lstlisting}
+ssh a*******@l01.phoenix.adelaide.edu.au
+\end{lstlisting}
+
+\section{File transfer}
+As I'm using linux, I'm going to use terminal commands. This command transfers \texttt{myfile.txt} to the desired folder on the Phoenix server. \textcolor{red}{All good here with VPN now, thank god.}
+\begin{lstlisting}
+scp myfile.txt aXXXXXXX@phoenix.adelaide.edu.au:Path/To/MyPhoenixFolder
+\end{lstlisting}
+is ``secure copy'', an extension of the \texttt{cp} command.
+
+You can also use ``secure file transfer protocol'' \texttt{sftp}. 
+\begin{lstlisting}
+sftp aXXXXXXX@phoenix.adelaide.edu.au
+\end{lstlisting}
+Then you use the \texttt{put} and \texttt{get} commands to transfer files. I'm not sure how this works yet.
+
+Which one is better? According to \url{http://www.jscape.com/blog/scp-vs-sftp}:
+\begin{itemize}
+  \item SCP is faster
+  \item Both SCP and SFTP use SSH, so have the same level of security
+  \item SFTP has greater functionality (SCP is file transfers \emph{only})
+  \item They both transfer large files okay
+  \item SFTP can resume file transfers, while SCP cannot.
+\end{itemize} 
+But since I'll probably just be needing file transfers, SCP is probably the way to go.
+
+\section{Loading software}
+From the \href{https://wiki.adelaide.edu.au/hpc/index.php/Getting_Started_Guide}{wiki}: ``In most cases, your required software is not loaded by default on the Phoenix system. After logging in, you will need to load your required software before you can perform any calculations. Phoenix uses the \texttt{module} system to manage the software environment. To see a list of the available software, use the \texttt{module avail} command as in the example below.`` \textcolor{red}{Tested loading and unloading with R. It works.}
+
+Use the commands \texttt{module load ModuleName} and \texttt{module unload ModuleName} to load and unload the desired software. \textbf{We will be using Phoenix to run PSMC only I expect - in comparison, generating data is a shorter process which I should be able to do on the laptop. I'm not sure how Phoenix permissions work but we might need to allow some time to negotiate getting PSMC on the Phoenix server.}
+
+\section{Running scripts}
+I've got two example job scripts in this folder - \texttt{PhoenixScriptExample.sh} (from Lachlan's email) and \texttt{PhoenixScriptExampleWiki.sh} (from the wiki). I get the impression from comparing the two, in the \texttt{.sh} file you should be able to directly run PSMC. What I'd probably do though is modify Shaun's PSMC loop script. \textbf{I might need to do some investigating into ``multicore programming''. Would it be faster to do lots of PSMC runs at once in parallel, or one at a time and using different cores?}
+
+Included in the job script you need the resources your program is going to use. \textbf{I'm not sure how to figure out the number of cores and number of nodes reuired (32 cores per node, Lachlan says in the email that 1 core is usually sufficient so go with that I guess?).} I could probably figure out time by doing a PSMC run (guessing the other Phoenix parameters) and way overestimating the time, and in my job script taking the start and end times. Maybe do this a few times with different genomes. Then that'd give me some idea of how long the script takes. It says it's best to overestimate though, otherwise you can get crashing.
+
+The amount of memory (RAM) allocated is \emph{per node}. \textbf{How would I work that out? Is there a way to monitor memory being used if I ran PSMC on the laptop for example, and use that as a guide?}
+
+\section{Checking progress}
+\begin{lstlisting}
+squeue -u a*******
+\end{lstlisting}
+will list the queue for your login.
+
+\section{Queueing jobs}
+You need to put your script on the queue using \texttt{sbatch my\_job.sh}. If the script needs variables (mine should be self-contained so unneccessary) see the wikis. \textcolor{red}{After running sbatch, you MUST record the ID since squeue is so long... Also, shouldn't there be like no jobs on my queue since we have our own bit of Phoenix? Maybe ``batch'' isn't the right place to submit it.}
+
+Cancel a job by finding the job ID via \texttt{squeue}, and then \texttt{scancel obID}.
+
+
+\section{CPU or GPU}
+From \url{https://wiki.adelaide.edu.au/hpc/index.php/CPU_tasks_VS._GPU_tasks}: ``If your research involves large matrices, intensive numerical and mathematical computations, or is image intensive, there is a good chance that you should consider paralleling computing. If you are in doubt, again, please do not hesitate, give the Phoenix team a call or email us, we are here to support your research.''
+
+PSMC is computationally intensive, right? So it might be worth it to try out GPU processing, or at least contact the Phoenix team.
+
+Running a GPU script is slightly different to a CPU (normal) script.
+\begin{lstlisting}
+#!/bin/bash
+
+# Configure the resources required
+#SBATCH -p batch                                               # partition (this is the queue your job will be added to)
+#SBATCH -n 8                                                    # number of cores (here uses 8, up to 32 cores are permitted)
+#SBATCH --time=01:00:00                                         # time allocation, which has the format (D-HH:MM), here set to 1 hour
+#SBATCH --gres=gpu:4                                            # generic resource required (here requires 4 gpu cores)
+#SBATCH --mem=16GB                                              # memory pool for all cores (here set to 16 GB)
+
+# Configure notifications 
+#SBATCH --mail-type=END                                         # Type of email notifications will be sent (here set to END, which means an email will be sent when the job is done)
+#SBATCH --mail-type=FAIL                                        # Type of email notifications will be sent (here set to FAIL, which means an email will be sent when the job is fail to complete)
+#SBATCH --mail-user=my_email@adelaide.edu.au                    # Email to which notification will be sent
+
+# Execute your script (due to sequential nature, please select proper compiler as your script corresponds to)
+bash ./my_program.sh  
+\end{lstlisting}
+
+\end{document}

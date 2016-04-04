@@ -1,0 +1,7 @@
+28/3/16
+
+Obtained MSMC binary from ftp://ftp.sanger.ac.uk/pub/users/ss27/msmc/ (just copy/paste into web browser)
+It's best just to read the guide online:
+https://github.com/stschiff/msmc/blob/master/guide.md
+
+MSMC tools: https://github.com/stschiff/msmc-tools (e.g. convert ms to msmc input)
