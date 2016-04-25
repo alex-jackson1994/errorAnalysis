@@ -1,0 +1,8 @@
+5/4/16	AJ
+
+# Make a ms simulation of the constant-bottleneck model with parameters N_0 = N_1 = 10^4, N_2 = 10^3, N_3 = 2 * 10^4, t_1 = 3 * 10^4 years (divide by 25 to get generational time), t_2 = 5 * 10^4 years
+# paramters we will be using: mu = 1.25e-8, r = ??? (rho = 7516???)
+
+
+# From Schiffels 2014, "PSMC' accurately estimates the recombination rate (Supplementary Fig. 1), which is not the case for PSMC"
+# Also, "where N_0 is the long-term average effective population size."
