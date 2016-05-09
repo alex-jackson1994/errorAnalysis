@@ -2,19 +2,6 @@
 % Encoding: UTF-8
 
 
-@Article{hellenthal2007mshot,
-  Title                    = {msHOT: modifying Hudson's ms simulator to incorporate crossover and gene conversion hotspots},
-  Author                   = {Hellenthal, Garrett and Stephens, Matthew},
-  Journal                  = {Bioinformatics},
-  Year                     = {2007},
-  Number                   = {4},
-  Pages                    = {520--521},
-  Volume                   = {23},
-
-  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/papers/Hudson 2002 ms README.pdf:PDF},
-  Publisher                = {Oxford Univ Press}
-}
-
 @Article{hudson2002generating,
   Title                    = {Generating samples under a Wright--Fisher neutral model of genetic variation},
   Author                   = {Hudson, Richard R},
@@ -24,6 +11,7 @@
   Pages                    = {337--338},
   Volume                   = {18},
 
+  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/Hudson 2002 ms README.pdf:PDF},
   Publisher                = {Oxford Univ Press}
 }
 
@@ -36,6 +24,7 @@
   Pages                    = {493--496},
   Volume                   = {475},
 
+  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/Li 2011 Inference of human.pdf:PDF;:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/Li 2011 Inference of human S.I..pdf:PDF},
   Publisher                = {Nature Publishing Group}
 }
 
@@ -51,6 +40,36 @@
   Publisher                = {Oxford Univ Press}
 }
 
+@Article{marjoram2006fast,
+  Title                    = {Fast" coalescent" simulation},
+  Author                   = {Marjoram, Paul and Wall, Jeff D},
+  Journal                  = {BMC genetics},
+  Year                     = {2006},
+  Number                   = {1},
+  Pages                    = {1},
+  Volume                   = {7},
+
+  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/Marjoram 2006 Fast "coalescent" simulation.pdf:PDF},
+  Owner                    = {alex},
+  Publisher                = {BioMed Central},
+  Timestamp                = {2016.05.05}
+}
+
+@Article{mcvean2005approximating,
+  Title                    = {Approximating the coalescent with recombination},
+  Author                   = {McVean, Gilean AT and Cardin, Niall J},
+  Journal                  = {Philosophical Transactions of the Royal Society of London B: Biological Sciences},
+  Year                     = {2005},
+  Number                   = {1459},
+  Pages                    = {1387--1393},
+  Volume                   = {360},
+
+  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/McVean 2005 Approximating the Coalescent with Recombination.pdf:PDF},
+  Owner                    = {alex},
+  Publisher                = {The Royal Society},
+  Timestamp                = {2016.05.05}
+}
+
 @Article{rabiner1989tutorial,
   Title                    = {A tutorial on hidden Markov models and selected applications in speech recognition},
   Author                   = {Rabiner, Lawrence R},
@@ -61,5 +80,18 @@
   Volume                   = {77},
 
   Publisher                = {IEEE}
+}
+
+@Article{schiffels2014inferring,
+  Title                    = {Inferring human population size and separation history from multiple genome sequences},
+  Author                   = {Schiffels, Stephan and Durbin, Richard},
+  Journal                  = {Nature genetics},
+  Year                     = {2014},
+  Number                   = {8},
+  Pages                    = {919--925},
+  Volume                   = {46},
+
+  File                     = {:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/Schiffels 2014 Inferring human population size ... MSMC.pdf:PDF;:home/alex/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/references/pdfs/Schiffels 2014 Inferring human ... S.I.pdf:PDF},
+  Publisher                = {Nature Publishing Group}
 }
 

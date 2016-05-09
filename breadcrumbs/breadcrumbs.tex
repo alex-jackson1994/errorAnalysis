@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{cite,url,hyperref,graphicx, amsmath, bm}
+\usepackage{alltt} 
+\usepackage{listings}
+%\usepackage{algorithm2e} # need texlive-science which I'm having trouble with getting...
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+
+
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{-0.5in}
+\setlength{\textheight}{25cm}
+%opening
+\title{Error Analysis of PSMC'}
+\author{Alex Lee Jackson}
+\begin{document}
+
+\maketitle
+
+%\begin{abstract}
+%blah
+%
+%\end{abstract}
+\section{Miscellaneous}
+For further inquiries, I can be contacted at \href{mailto:aj123@internode.on.net}{aj123@internode.on.net}.
+
+GitHub: 
+
+\section{Objective}
+Determine if there's a relationship between the lengths of contigs being analysed, population model (predictors) and the error (response) given by PSMC' (MSMC\cite{schiffels2014inferring} with two haplotypes). This will probably be done using mixed effects models.
+
+\subsection{Background}
+PSMC' gives an estimate of how population demographics change over time, by analysing heterozygousity of sites across a genome. However, real sequenced genomes will not always be nicely sorted into chromosomes. Often they will be assembled into smaller sections called contigs. We will simulate human genomes (MSMC was originally written to analyse humans) under the following conditions:
+\begin{itemize}
+\item The length $L$ of the genome will be taken from a real human genome. For simplicity, only autosomes will be considered.
+\item Four or five different population models will be considered. Take time $t$ as going from recent to ancient, i.e. $t=0$ is the more recent than $t=100$.
+\begin{itemize}
+\item Constant: $N_e(t)=N_0$.
+\item Exponential: $N_e(t)=N_0e^{kt}$ for some realistic $k$.
+\item Bottleneck: $N_e(t)=$
+\end{itemize}
+\end{itemize}
+
+\begin{algorithmic}
+\State Set $L$.
+\For{<text>}
+<body>
+\EndFor
+\end{algorithmic}
+\subsection{Definition Of Error}
+
+
+\bibliographystyle{plain}
+\bibliography{../references/references}{}
+
+\end{document}
