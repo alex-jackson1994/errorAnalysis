@@ -1,0 +1,7 @@
+# plan: run a big macs and see if it works!!! e.g (using at now would be good)
+
+[a1646282@l01 macs]$ pwd
+/home/a1646282/phoenixTesting/macs
+[a1646282@l01 macs]$ module load GCC
+[a1646282@l01 macs]$ sbatch macs1.sh 
+Submitted batch job 745164
