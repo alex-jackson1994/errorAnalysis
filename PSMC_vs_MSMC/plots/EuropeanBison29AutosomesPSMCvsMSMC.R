@@ -14,7 +14,7 @@ setwd("~/Dropbox/MAGenomics_2015/PSMC_Scholarship/errorAnalysis/PSMC_vs_MSMC/plo
 # Function to read MSMC input files + scale time and population size + print them into existing plot (for bootstrap)
 # Generation time = 20 y, mutation rate = 1.25e-8 mutations/nucleotide/generation
 
-GEN = 20
+GEN = 8
 MU = 1.25e-8
 #MU=2.5e-8
 # from tutorial at http://nicercode.github.io/guides/repeating-things/ - and Paul!
@@ -49,7 +49,7 @@ EurBisMSMC <- scaleMSMCInput("MSMC/EuropeanBison.Cow_UMD3_1.realigned_AllAutosom
 # I began by combining the MSMC data into one data.frame by "rwo-binding" them using rbind(). 
 #alldat <- TassieDevil50Contigs
 # allow log scaling
-EurBisMSMC = EurBisMSMC[EurBisMSMC$scaledTime != 0,]
+#EurBisMSMC = EurBisMSMC[EurBisMSMC$scaledTime != 0,]
 #alldat = alldat[alldat$scaledTimeHi != 0,]
 
 EurBisMSMC # view it...
@@ -126,13 +126,41 @@ EurBisMSMCNew <- data.frame(Time=EurBisMSMC$time_index, Scaled.Time=EurBisMSMC$s
 EurBisPSMCNew <- data.frame(Time=EurBisPSMC$t_k, Scaled.Time=EurBisPSMC$t_unscaled, Ne=EurBisPSMC$pop_hist, Method=rep("PSMC", length(EurBisPSMC$pop_hist)) )
 
 comb_dat <- rbind(EurBisMSMCNew,EurBisPSMCNew)
+
+comb_datWith0 <- comb_dat
+comb_datWith0$Scaled.Time[1] = 1 # so I can log this
+comb_dat <- comb_dat[comb_dat$Scaled.Time != 0,]
+
+
 cols <- c("MSMC" = "red","PSMC" = "blue")
 
 # hmm for some reason, PSMC and MSMC are mixed up?
  #plot(td_dat$t_unscaled_hi,td_dat$pop_hist,type="s",log="xy") # this is the psmc results. ALL GOOD NOW THO
 
 g_MSMC_PSMC = ggplot(comb_dat,aes(x=Scaled.Time,y=Ne,colour=Method)) + theme_bw() + scale_y_log10() + geom_step(size=1) + ylab("Scaled Population Size\n") +
-  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 20 yr\n"))) + coord_cartesian(xlim=c(min(comb_dat$Scaled.Time)*0.9, max(comb_dat$Scaled.Time)*1.1), ylim=c(min(comb_dat$Ne)*0.9,max(comb_dat$Ne)*1.1)) +
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(min(comb_dat$Scaled.Time)*0.9, max(comb_dat$Scaled.Time)*1.1), ylim=c(min(comb_dat$Ne)*0.9,max(comb_dat$Ne)*1.1)) +
   theme(legend.title=element_blank(),axis.title.x=element_text(vjust=-1.3)) + scale_x_log10() + scale_color_manual(values=cols) + ggtitle("PSMC vs MSMC for the European Bison")
-
 ggsave(filename='EuropeanBison29AutosomesPSMCMSMCComparison.pdf',height=21,width=29.7,units='cm',plot=g_MSMC_PSMC)
+
+g_MSMC_PSMC_With0 = ggplot(comb_datWith0,aes(x=Scaled.Time,y=Ne,colour=Method)) + theme_bw() + scale_y_log10() + geom_step(size=1) + ylab("Scaled Population Size\n") +
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(min(comb_datWith0$Scaled.Time)*0.9, max(comb_datWith0$Scaled.Time)*1.1), ylim=c(min(comb_datWith0$Ne)*0.9,max(comb_datWith0$Ne)*1.1)) +
+  theme(legend.title=element_blank(),axis.title.x=element_text(vjust=-1.3)) + scale_x_log10() + scale_color_manual(values=cols) + ggtitle("PSMC vs MSMC for the European Bison")
+ggsave(filename='EuropeanBison29AutosomesPSMCMSMCComparisonWith0.pdf',height=21,width=29.7,units='cm',plot=g_MSMC_PSMC_With0)
+
+############
+
+# Nigel wanted a plot of the time intervals so that he could see how they were distributed. Do this both for PSMC and MSMC, in logged and unlogged time.
+
+# Logged, with 0
+g_MSMC_PSMC_TimeIntervalsLogWith0 = ggplot(comb_datWith0,aes(x=Scaled.Time,y=c(rep(0,length(comb_datWith0[comb_datWith0$Method == "MSMC",]$Method)), rep(1, length(comb_datWith0[comb_datWith0$Method == "PSMC",]$Method)) ),colour=Method)) + theme_bw() + geom_point(size=1) + 
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(min(comb_datWith0$Scaled.Time)*0.9, max(comb_datWith0$Scaled.Time)*1.1)) + scale_x_log10() + scale_color_manual(values=cols) + ggtitle("PSMC vs MSMC time intervals (log time)")
+ggsave(filename='EuropeanBison29AutosomesPSMCMSMCLogTimeWith0.pdf',height=21,width=29.7,units='cm',plot=g_MSMC_PSMC_TimeIntervalsLogWith0)
+# Logged, without 0
+g_MSMC_PSMC_TimeIntervalsLogWithout0 = ggplot(comb_datWith0,aes(x=Scaled.Time,y=c(rep(0,length(comb_datWith0[comb_datWith0$Method == "MSMC",]$Method)), rep(1, length(comb_datWith0[comb_datWith0$Method == "PSMC",]$Method)) ),colour=Method)) + theme_bw() + geom_point(size=1) + 
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(500, max(comb_datWith0$Scaled.Time)*1.1)) + scale_x_log10() + scale_color_manual(values=cols) + ggtitle("PSMC vs MSMC time intervals (log time, without the first MSMC point)")
+ggsave(filename='EuropeanBison29AutosomesPSMCMSMCLogTimeWithout0.pdf',height=21,width=29.7,units='cm',plot=g_MSMC_PSMC_TimeIntervalsLogWithout0)
+# Unlogged, without 0
+g_MSMC_PSMC_TimeIntervalsUnlogged = ggplot(comb_datWith0,aes(x=Scaled.Time,y=c(rep(0,length(comb_datWith0[comb_datWith0$Method == "MSMC",]$Method)), rep(1, length(comb_datWith0[comb_datWith0$Method == "PSMC",]$Method)) ),colour=Method)) + theme_bw() + geom_point(size=1) + 
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(500, max(comb_datWith0$Scaled.Time)*1.1)) + scale_color_manual(values=cols) + ggtitle("PSMC vs MSMC time intervals (unlogged time)")
+ggsave(filename='EuropeanBison29AutosomesPSMCMSMCUnloggedTime.pdf',height=21,width=29.7,units='cm',plot=g_MSMC_PSMC_TimeIntervalsUnlogged)
+
