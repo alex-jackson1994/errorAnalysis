@@ -117,13 +117,13 @@ EurBisPSMC$pop_hist = EurBisPSMC$lambda_k * EurBisPSMC_N0
 
 
 # Create my new MSMC df
-EurBisMSMCNew <- data.frame(Time=EurBisMSMC$time_index, Scaled.Time=EurBisMSMC$scaledTime, Ne=EurBisMSMC$scaledPopSize, Method=rep("MSMC", length(EurBisMSMC$scaledPopSize)) )
+EurBisMSMCNew <- data.frame(Time=EurBisMSMC$time_index, Scaled.Time=EurBisMSMC$scaledTime, Ne=EurBisMSMC$scaledPopSize, Method=rep("MSMC (40*1)", length(EurBisMSMC$scaledPopSize)) )
 
 # # Now plot a little more simply
 # ggplot(alldatBen,aes(x=Scaled.Time,y=Ne,colour=Estimate)) + theme_bw() + scale_y_log10() + geom_step(linetype="dashed",size=1) + ylab("Scaled Population Size\n") + xlab(expression(paste("Scaled Time (mu = 1.25e-8)\n"))) + coord_cartesian(xlim=c(80,max(alldat$scaledTimeLo)),ylim=c(min(alldat$scaledPopSize)*0.9,1.1*max(alldat$scaledPopSize))) +
 #   theme(legend.title=element_blank(),axis.title.x=element_text(vjust=-1.3)) + scale_x_log10()
 
-EurBisPSMCNew <- data.frame(Time=EurBisPSMC$t_k, Scaled.Time=EurBisPSMC$t_unscaled, Ne=EurBisPSMC$pop_hist, Method=rep("PSMC", length(EurBisPSMC$pop_hist)) )
+EurBisPSMCNew <- data.frame(Time=EurBisPSMC$t_k, Scaled.Time=EurBisPSMC$t_unscaled, Ne=EurBisPSMC$pop_hist, Method=rep("PSMC (40*1)", length(EurBisPSMC$pop_hist)) )
 
 comb_dat <- rbind(EurBisMSMCNew,EurBisPSMCNew)
 
@@ -132,7 +132,7 @@ comb_datWith0$Scaled.Time[1] = 1 # so I can log this
 comb_dat <- comb_dat[comb_dat$Scaled.Time != 0,]
 
 
-cols <- c("MSMC" = "red","PSMC" = "blue")
+cols <- c("MSMC (40*1)" = "red","PSMC (40*1)" = "blue")
 
 # hmm for some reason, PSMC and MSMC are mixed up?
  #plot(td_dat$t_unscaled_hi,td_dat$pop_hist,type="s",log="xy") # this is the psmc results. ALL GOOD NOW THO
@@ -164,3 +164,31 @@ g_MSMC_PSMC_TimeIntervalsUnlogged = ggplot(comb_datWith0,aes(x=Scaled.Time,y=c(r
   xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(500, max(comb_datWith0$Scaled.Time)*1.1)) + scale_color_manual(values=cols) + ggtitle("PSMC vs MSMC time intervals (unlogged time)")
 ggsave(filename='EuropeanBison29AutosomesPSMCMSMCUnloggedTime.pdf',height=21,width=29.7,units='cm',plot=g_MSMC_PSMC_TimeIntervalsUnlogged)
 
+##################################33
+#####################################3
+################################
+
+# Add plots where MSMC looks in more recent time 
+EurBisMSMC_50_2 <- scaleMSMCInput("MSMC/EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput___50*2.final.txt")
+EurBisMSMC_100_1 <- scaleMSMCInput("MSMC/EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput___100*1.final.txt")
+
+EurBisMSMC_50_2New <- data.frame(Time=EurBisMSMC_50_2$time_index, Scaled.Time=EurBisMSMC_50_2$scaledTime, Ne=EurBisMSMC_50_2$scaledPopSize, Method=rep("MSMC (50*2)", length(EurBisMSMC_50_2$scaledPopSize)) )
+EurBisMSMC_100_1New <- data.frame(Time=EurBisMSMC_100_1$time_index, Scaled.Time=EurBisMSMC_100_1$scaledTime, Ne=EurBisMSMC_100_1$scaledPopSize, Method=rep("MSMC (100*1)", length(EurBisMSMC_100_1$scaledPopSize)) )
+
+comb_dat4 <- rbind(EurBisMSMCNew,EurBisPSMCNew, EurBisMSMC_50_2New, EurBisMSMC_100_1New)
+comb_dat4With0 <- comb_dat4
+for (i in 1:length(comb_dat4With0$Scaled.Time))
+{
+  if (comb_dat4With0$Scaled.Time[i] == 0)
+  {
+    comb_dat4With0$Scaled.Time[i] = 1 # so I can log this
+  }
+}
+comb_dat4 <- comb_dat4[comb_dat4$Scaled.Time != 0,]
+
+cols4 <- c("MSMC (40*1)" = "red","PSMC (40*1)" = "blue", "MSMC (50*2)" = "green", "MSMC (100*1)" = "grey")
+
+g_3MSMC_PSMC_With0 = ggplot(comb_dat4With0,aes(x=Scaled.Time,y=Ne,colour=Method)) + theme_bw() + scale_y_log10() + geom_step(size=1) + ylab("Scaled Population Size\n") +
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(800, max(comb_dat4With0$Scaled.Time)*1.1), ylim=c(min(comb_dat4With0$Ne)*0.9,1.1*10^5)) +
+  theme(legend.title=element_blank(),axis.title.x=element_text(vjust=-1.3)) + scale_x_log10() + scale_color_manual(values=cols4) + ggtitle("PSMC and 3 * MSMC for the European Bison")
+ggsave(filename='EuropeanBison29AutosomesPSMC3MSMCComparisonWith0.pdf',height=21,width=29.7,units='cm',plot=g_3MSMC_PSMC_With0)
