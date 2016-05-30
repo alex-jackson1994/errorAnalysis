@@ -1,0 +1,2 @@
+/home/alex/Desktop/data/Internship/MaCS/macs-master/macs 1 10000 -T -t 0.0005 -r 0.0005 -s 1462945465 -eN 0 1 -eG 0.03 -115.129 -eN 0.05 2 2
+1462945465

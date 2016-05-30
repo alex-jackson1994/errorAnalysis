@@ -1,0 +1,4 @@
+# with N = 10 000 therefore mu = 1.25e-8 mut/site/gen * 4 * 10 000 = 5e-4 mut/sit/4N gen
+# just gonna use mu = r for now...
+# -T gives ms-like output
+# -s sets seed (1462945465 was taken from a prev run)

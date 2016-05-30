@@ -1,0 +1,1 @@
+COMMAND:	macs 10000 1e9 -t .001 -r .001 -h 1e2 -F example_input/ascertainment.txt 0

@@ -1,0 +1,10 @@
+INPUT: Sample size is now 10000
+INPUT: Seq length is now 1e+09
+INPUT: Scaled mutation rate is now 1e+06
+INPUT: Scaled recombination rate is now 1e+06
+INPUT: Base pairs to track is 100
+Simulator destructor:
+Configuration destructor
+Exception at main:
+The freq range entered is incorrect.
+Program is complete

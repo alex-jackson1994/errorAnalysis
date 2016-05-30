@@ -1,0 +1,22 @@
+input files:         ["EuropeanBison.Cow_UMD3_1.realigned_chr1_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr2_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr3_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr4_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr5_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr6_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr7_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr8_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr9_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr10_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr11_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr12_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr13_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr14_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr15_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr16_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr17_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr18_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr19_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr20_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr21_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr22_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr23_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr24_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr25_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr26_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr27_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr28_MSMCInput.txt", "EuropeanBison.Cow_UMD3_1.realigned_chr29_MSMCInput.txt"]
+maxIterations:       20
+mutationRate:        0.000558568
+recombinationRate:   0.000139642
+subpopLabels:        [0, 0]
+timeSegmentPattern:  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+nrThreads:           50
+nrTtotSegments:      744
+verbose:             false
+outFilePrefix:       run186_4/EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput___186*4
+naiveImplementation: false
+hmmStrideWidth:      1000
+fixedPopSize:        false
+fixedRecombination:  false
+initialLambdaVec:    []
+directedEmissions:   false
+skipAmbiguous:       false
+indices:             [0, 1]
+logging information written to run186_4/EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput___186*4.log
+loop information written to run186_4/EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput___186*4.loop.txt
+final results written to run186_4/EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput___186*4.final.txt
+[1/20] Baumwelch iteration

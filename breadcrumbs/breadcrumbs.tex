@@ -2,7 +2,7 @@
 \usepackage{cite,url,hyperref,graphicx, amsmath, bm}
 \usepackage{alltt} 
 \usepackage{listings}
-%\usepackage{algorithm2e} # need texlive-science which I'm having trouble with getting...
+\usepackage{algorithm2e} % need texlive-science which I'm having trouble with getting...
 \lstset{
 basicstyle=\small\ttfamily,
 columns=flexible,
@@ -33,17 +33,30 @@ For further inquiries, I can be contacted at \href{mailto:aj123@internode.on.net
 GitHub: \url{https://github.com/alex-jackson1994/errorAnalysis}
 
 \section{Objective}
-Determine if there's a relationship between the lengths of contigs being analysed, population model (predictors) and the error (response) given by PSMC' (MSMC\cite{schiffels2014inferring} with two haplotypes). This will probably be done using mixed effects models.
+Determine if there's a relationship between the lengths of contigs being analysed, population model (predictors) and the error (response) given by PSMC' (MSMC\cite{schiffels2014inferring} with two haplotypes). This will probably be done using mixed effects models.\\
+
+\begin{algorithm}[H]
+  \For{Each population model (3)}{
+    \For{Each simulated genome (5)}{
+      \For{Each model of fragmentation (2)}{
+        \For{Each level of fragmentation (5)}{
+          Run MSMC, record output.\
+        }
+      }
+    }
+  }
+  \caption{Outline of the simulation and MSMC analysis process}\label{overall}
+\end{algorithm}
 
 \subsection{Background}
 PSMC' gives an estimate of how population demographics change over time, by analysing heterozygousity of sites across a genome. However, real sequenced genomes will not always be nicely sorted into chromosomes. Often they will be assembled into smaller sections called contigs. We will simulate human genomes (MSMC was originally written to analyse humans) under the following conditions:
 \begin{itemize}
-\item The length $L$ of the genome will be taken from a real human genome. For simplicity, only autosomes will be considered.
-\item Four or five different population models will be considered. Take time $t$ as going from recent to ancient, i.e. $t=0$ is the more recent than $t=100$.
+\item The length $L$ of the genome will be taken from a real human genome. For simplicity, \emph{only autosomes} will be considered.
+\item Three different population models will be considered. Take time $t$ as going from recent to ancient, i.e. $t=0$ is the more recent than $t=100$. These dynamics should be carefully considered, as we want them to fall into the time range where PSMC' can actually pick them up.
 \begin{itemize}
 \item Constant: $N_e(t)=N_0$.
-\item Exponential: $N_e(t)=N_0e^{kt}$ for some realistic $k$.
-\item Bottleneck: $N_e(t)=$
+\item Exponential decrease: $N_e(t)=N_0e^{kt}$ for some realistic $k<0$.
+\item Bottleneck: $N_e(t)=?$
 \end{itemize}
 \end{itemize}
 
@@ -54,13 +67,17 @@ PSMC' gives an estimate of how population demographics change over time, by anal
 %\EndFor
 %\end{algorithmic}
 \subsection{Definition Of Error}
+We define the \emph{error rate} $\Delta (s_1,s_2)$ between two stepwise functions $s_1(t)$ and $s_2(t)$ as 
+\begin{eqnarray}
+\Delta (s_1,s_2) = \int_{t_R}^{t_A} |s_1(t)-s_2(t)| \,dt, \label{errorRate}
+\end{eqnarray}
+for sensible limits of integration $t_R$ (recent) and $t_A$ (ancient). The interpretation of this is the absolute value of the area between the two curves, in the interval $(t_R,t_A)$. Consult with Ben on choosing these values - a suggestion was the 95\% confidence interval for the time of coalescence between two haplotypes.
 
 \subsection{Potential Whole Genome Simulators}
 We want a simulator with the following properties.
 \begin{itemize}
 \item Able to simulate exponential growth.
 \item Able to be converted to a format which can be taken by MSMC.
-\item Able to simulate selection pressure.
 \item Able to simulate linkage disequilibrium.
 \item Uses the coalescent model, not forward model.
 \item Can handle human genome sizes (in the range of 2.6 Gbp).
@@ -70,9 +87,17 @@ A number of simulators were considered.
 \item msHot-LITE (\url{https://github.com/lh3/foreign/tree/master/msHOT-lite}): This was used by Heng Li in his PSMC paper to simulate genomes. However, it has an upper size limit of roughly 10 Mbp.
 \item GENOME (\url{http://csg.sph.umich.edu//liang/genome/}): This doesn't appear to do exponential growth.
 \item GenomePop2 (\url{http://acraaj.webs.uvigo.es/GenomePop2.htm}): This can apparently output in ms-like format. Might go back to it later...
-\item MaCS (\url{https://github.com/gchen98/macs}): Looking at this right now.
+\item MaCS (\url{https://github.com/gchen98/macs}): Looking at this right now. It CAN handle the 2.6 Gbp sizes needed, as well as the other things I believe. Also, it's very fast.
 \end{itemize}
 
+\subsubsection{MaCS}
+For full detail, please refer to the MaCS README (\url{https://github.com/gchen98/macs/blob/master/README}), and the manual (\url{http://home.uchicago.edu/rhudson1/source/mksamples/msdir/msdoc.pdf}) for ms\cite{hudson2002generating}, from which MaCS is based upon.
+
+An example of MaCS input follows.
+
+\section{Other Suggestions}
+\subsection{Reduction In Complexity}
+Julien suggested that we could do some trials to see if we recover the same dynamics with say 5 chromosomes, instead of the full 23. This would significantly decrease the run-time of the whole progress. However, fragmenting 5 chromosomes may be quite different to fragmenting 23 chromosomes.
 
 
 \bibliographystyle{plain}

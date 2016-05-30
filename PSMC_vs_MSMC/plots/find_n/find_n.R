@@ -46,18 +46,31 @@ for (i in 1:length(t))  # -1 bc we don't want to include 0
 tratios
 scaleFactor = mean(tratios) # ???? it's 1790.292, WHY?????
 # so the theoretical is 1790x larger than the ACTUAL OUTPUT????
+# ACTUALLY, NOTE THAT 1/1790 is ~ 0.00055, in the MSMC output is mutation rate is 0.000558568... THIS COULD BE IT!!!
 
 # therefore we need to update our function to account for that.
 Ti_MSMC_sF = function(i,n) {
   return ( -log(1-i/n) * GEN / MU / scaleFactor)
 }
 nmax = 200
-t1vals = rep(0, nmax)
-nvals = rep(0, nmax)
+t1vals = NULL
+nvals = NULL
 # find T1...
-for (n in 1:nmax) {
-  t1vals = append(t1vals, abs(Ti_MSMC_sF(1,n) - T1_PSMC) )
+# for (n in 1:nmax) {
+#   t1vals = append(t1vals, Ti_MSMC_sF(1,n) - T1_PSMC )
+#   nvals = append(nvals, n)
+# }
+closeEnough = 0
+n = 1
+while (closeEnough == 0) {
+  t1vals = append(t1vals, Ti_MSMC_sF(1,n) - T1_PSMC )
   nvals = append(nvals, n)
+  n = n + 1
+  if (Ti_MSMC_sF(1,n) - T1_PSMC < 10)
+  {
+    closeEnough = 1
+  }
 }
 df = data.frame(nvals, t1vals)
 df
+tail(df)
