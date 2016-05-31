@@ -88,12 +88,34 @@ A number of simulators were considered.
 \item GENOME (\url{http://csg.sph.umich.edu//liang/genome/}): This doesn't appear to do exponential growth.
 \item GenomePop2 (\url{http://acraaj.webs.uvigo.es/GenomePop2.htm}): This can apparently output in ms-like format. Might go back to it later...
 \item MaCS (\url{https://github.com/gchen98/macs}): Looking at this right now. It CAN handle the 2.6 Gbp sizes needed, as well as the other things I believe. Also, it's very fast.
+\item scrm (\url{http://scrm.github.io/}): Recommended by Schiffels, but I haven't looked at it.
 \end{itemize}
 
 \subsubsection{MaCS}
-For full detail, please refer to the MaCS README (\url{https://github.com/gchen98/macs/blob/master/README}), and the manual (\url{http://home.uchicago.edu/rhudson1/source/mksamples/msdir/msdoc.pdf}) for ms\cite{hudson2002generating}, from which MaCS is based upon.
+For full detail, please refer to the MaCS README (\url{https://github.com/gchen98/macs/blob/master/README}), and the manual (\url{http://home.uchicago.edu/rhudson1/source/mksamples/msdir/msdoc.pdf}) for ms\cite{hudson2002generating}, from which MaCS is based upon. The MaCS README is fairly sparse, so I'd advise familiarising yourself with the relevant parts of the ms manual.
 
-An example of MaCS input follows.
+The MaCS README contains two examples of running MaCS. I'd advise taking the random seed, which is included in \texttt{stderr}, and storing it from each run. Alternatively, you could just specify the seed and store that each time. Reproducibility is important.
+
+Further information can be found by running \texttt{./macs}. Note that:
+\begin{itemize}
+\item \texttt{<samplesize>} should always be 2, as we are simulating a diploid genome.
+\item \texttt{<region in base pairs>} would be of the order of 2.6 Gbp. You should get this exactly from an emprical genome.
+\end{itemize}
+Switches of interest are: \texttt{-s} (sets seed), \texttt{-t} (sets mutation rate), \texttt{-r} (sets recombination rate), \texttt{-T} (outputs in a format that can be converted to the ms format), \texttt{-eG} (sets growth rate), and \texttt{-eN} (sets population size, sets growth rate to 0).
+
+MaCS output should be able to be converted into the ms format via the included script \texttt{msformatter}. I've run this without errors, but haven't confirmed the ms format can then be converted to MSMC input format.
+
+To convert from ms format to MSMC input format, use the script \texttt{ms2multihetsep.py}, included in the GitHub \url{https://github.com/stschiff/msmc-tools}. I haven't tried to use this yet.
+
+\subsection{Simulation Parameters}
+We will need the following parameters for the simulation.
+\begin{itemize}
+\item Genome size: obtaining this from an empirical human genome would be ideal. Remember, we are only considering autosomes.
+\item Mutation rate $\mu$: Julien suggests $1.25\times 10^{-8}$ mutations per bp per generation is the current best. 
+\item Recombination rate $r$: \textbf{I don't know a good estimate.}
+\item Population models (this defines $N_0$ as well). We originally had Julien give us suggestions for times/effective sizes for a constant-bottleneck model. However, I suggest you guys all sit down and figure out exactly where you would like past demographic events to happen (as we want to make sure MSMC can pick them up).
+\end{itemize}
+Apart from the ``chromosome-level'' of fragmentation, fragmentation models will have to be discussed. This includes finding a relevant empirical contig distribution, and some mathematical model for chromosomal fragmentation. Then you'll have to decide whether to do the fragmentation on the MaCS output, ms format, or the MSMC input.
 
 \section{Other Suggestions}
 \subsection{Reduction In Complexity}

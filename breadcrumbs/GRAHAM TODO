@@ -1,11 +1,6 @@
 
     I'd also give him the R script we used for the PSMC error rates, as that has some functions already set up to calculate errors. (todo: me)
-    What are the (time) parameters of the population models? Given that we want to focus the dynamics in the mid-range of time, some thought should go into exactly what these parameters will be. (todo: Julien + maths guys)
-    What simulator should be used? I think MaCS looks appropriate, but I haven't experimented thoroughly enough with this to be certain. On a side note, MaCS actually outputs its random seed into stderr, so we should be easily able to extract this an store it in a table for. I should link the ms manual and MaCS manual (both are relevant) and highlight the command line options Graham should be aware of. Also make sure the units are emphasised. (todo: me)
-    What simulator parameters should be used? I can include an outline of something I've used, but biological parameters may need to be confirmed. (todo: me)
-    How to convert MaCS -> ms format -> MSMC format. (todo: me at first, then Graham)
-    Fragmentation scripts. This could either be done on: raw MaCS output, the ms-like converted format of MaCS, or the PSMC' input. I don't understand the output files well enough to make a call on this. (todo: Graham)
-    Fragmentation models. Consult with maths guys for a theoretical model, and maybe Julien for a empirical model. (todo: maths guys, Julien)
+
     Running MSMC. Link Graham the paper. Highlight the relevant parts, e.g difference from PSMC re: recombination rate estimates, time intervals. Highlight relevant command-line options, e.g. specifying time intervals. Give an example of how to run MSMC. (todo: me, Julien could help if needed later)
     Visualising MSMC. How to rescale the output to real-time, and how to visualise it. (todo: me. Julien or Ben if necessary later)
 
