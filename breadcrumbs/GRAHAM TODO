@@ -1,5 +1,4 @@
 
-    I'd also give him the R script we used for the PSMC error rates, as that has some functions already set up to calculate errors. (todo: me)
 
     Running MSMC. Link Graham the paper. Highlight the relevant parts, e.g difference from PSMC re: recombination rate estimates, time intervals. Highlight relevant command-line options, e.g. specifying time intervals. Give an example of how to run MSMC. (todo: me, Julien could help if needed later)
     Visualising MSMC. How to rescale the output to real-time, and how to visualise it. (todo: me. Julien or Ben if necessary later)

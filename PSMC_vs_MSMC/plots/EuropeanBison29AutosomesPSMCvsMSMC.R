@@ -192,3 +192,8 @@ g_3MSMC_PSMC_With0 = ggplot(comb_dat4With0,aes(x=Scaled.Time,y=Ne,colour=Method)
   xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(800, max(comb_dat4With0$Scaled.Time)*1.1), ylim=c(min(comb_dat4With0$Ne)*0.9,1.1*10^5)) +
   theme(legend.title=element_blank(),axis.title.x=element_text(vjust=-1.3)) + scale_x_log10() + scale_color_manual(values=cols4) + ggtitle("PSMC and 3 * MSMC for the European Bison")
 ggsave(filename='EuropeanBison29AutosomesPSMC3MSMCComparisonWith0.pdf',height=21,width=29.7,units='cm',plot=g_3MSMC_PSMC_With0)
+
+g_tmp = ggplot(EurBisMSMCNew,aes(x=Scaled.Time,y=Ne)) + theme_bw() + scale_y_log10() + geom_step(size=1, colour = "red") + geom_point(size = 2, colour = "black") + ylab("Scaled Population Size\n") +
+  xlab(expression(paste("Scaled Time (mu = 1.25e-8), gen = 8 yr\n"))) + coord_cartesian(xlim=c(800, max(EurBisMSMCNew$Scaled.Time)*1.1), ylim=c(min(EurBisMSMCNew$Ne)*0.9,1.1*10^5)) +
+  theme(legend.title=element_blank(),axis.title.x=element_text(vjust=-1.3))  + scale_color_manual(values=cols4) + ggtitle("Example of constructing a step function from discrete points.") + scale_x_log10()
+ggsave(filename='g_tmp.pdf',height=21,width=29.7,units='cm',plot=g_tmp)
