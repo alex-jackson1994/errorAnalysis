@@ -1,0 +1,315 @@
+#_-_-_-_ Tassie Devil -_-_-_#
+
+
+awk '{print $1, 0, $2, $1, "0", "+"}' OFS='\t' /localscratch/Refs/Sarcophilus_harrisii/Devil7_0_Raw/Sarcophilus_harrisii.DEVIL7.0.dna_rm.toplevel.fasta.fai | head -50
+
+GL849905.1	0	5315331	GL849905.1	0	+
+GL856749.1	0	5126248	GL856749.1	0	+
+GL834541.1	0	5126039	GL834541.1	0	+
+GL841583.1	0	5071956	GL841583.1	0	+
+GL841593.1	0	5040183	GL841593.1	0	+
+GL857000.1	0	5016598	GL857000.1	0	+
+GL849903.1	0	5011656	GL849903.1	0	+
+GL841204.1	0	4943988	GL841204.1	0	+
+GL834507.1	0	4896948	GL834507.1	0	+
+GL834743.1	0	4893984	GL834743.1	0	+
+GL841200.1	0	4893859	GL841200.1	0	+
+GL849604.1	0	4836507	GL849604.1	0	+
+GL834722.1	0	4818093	GL834722.1	0	+
+GL841543.1	0	4804729	GL841543.1	0	+
+GL849858.1	0	4797432	GL849858.1	0	+
+GL841494.1	0	4779958	GL841494.1	0	+
+GL849906.1	0	4779180	GL849906.1	0	+
+GL834466.1	0	4765182	GL834466.1	0	+
+GL849868.1	0	4765094	GL849868.1	0	+
+GL834618.1	0	4759636	GL834618.1	0	+
+GL861688.1	0	4757933	GL861688.1	0	+
+GL849915.1	0	4730170	GL849915.1	0	+
+GL856969.1	0	4722788	GL856969.1	0	+
+GL834646.1	0	4712555	GL834646.1	0	+
+GL861628.1	0	4709404	GL861628.1	0	+
+GL834651.1	0	4707063	GL834651.1	0	+
+GL834710.1	0	4695799	GL834710.1	0	+
+GL834453.1	0	4688437	GL834453.1	0	+
+GL849842.1	0	4682641	GL849842.1	0	+
+GL864891.1	0	4676460	GL864891.1	0	+
+GL861605.1	0	4663532	GL861605.1	0	+
+GL856966.1	0	4634009	GL856966.1	0	+
+GL861670.1	0	4629241	GL861670.1	0	+
+GL834609.1	0	4622050	GL834609.1	0	+
+GL849626.1	0	4605142	GL849626.1	0	+
+GL856746.1	0	4597781	GL856746.1	0	+
+GL834645.1	0	4570869	GL834645.1	0	+
+GL834732.1	0	4567007	GL834732.1	0	+
+GL849812.1	0	4565313	GL849812.1	0	+
+GL834451.1	0	4562494	GL834451.1	0	+
+GL864880.1	0	4560673	GL864880.1	0	+
+GL867584.1	0	4554006	GL867584.1	0	+
+GL834465.1	0	4537969	GL834465.1	0	+
+GL834540.1	0	4520778	GL834540.1	0	+
+GL861646.1	0	4514565	GL861646.1	0	+
+GL841302.1	0	4504205	GL841302.1	0	+
+GL856785.1	0	4502903	GL856785.1	0	+
+GL841376.1	0	4499141	GL841376.1	0	+
+GL849656.1	0	4487226	GL849656.1	0	+
+GL841589.1	0	4486578	GL841589.1	0	+
+
+### Top 7 contigs
+## in /localscratch/AussieGenomes/TasmanianDevil/bwa_n0.04_seed
+mkdir MSMC_5MbContigs
+cd MSMC_5MbContigs
+module load python/4.8.0/3.4.1 gnu/4.9.2 zlib/testing samtools/1.2 bcftools/1.2 msmc/20150413 htslib/1.2.1 parallel
+
+# Average depth on autosomes
+samtools view -u ../TasmanianDevilSanger.Devil7_0.realigned.bam GL849905.1 GL856749.1 GL834541.1 GL841583.1 GL841593.1 GL857000.1 GL849903.1 | samtools depth - | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}'
+
+Average =  47.5546
+Stdev =  21.343
+
+# Generate input files (!! 2-lines cmd !! )
+parallel -j7 --nice 19 "samtools mpileup -EA -Q 20 -C 50 -u -r {} -f /localscratch/Refs/Sarcophilus_harrisii/Devil7_0_Raw/Sarcophilus_harrisii.DEVIL7.0.dna_rm.toplevel.fasta ../TasmanianDevilSanger.Devil7_0.realigned.bam | bcftools call -c -V indels | bamCaller.py 47.5546 TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCmask.bed.gz | gzip -c > TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMC.vcf.gz ;\
+generate_multihetsep.py --mask=TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCmask.bed.gz TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMC.vcf.gz > TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCInput.txt" ::: GL849905.1 GL856749.1 GL834541.1 GL841583.1 GL841593.1 GL857000.1 GL849903.1
+
+# MSMC
+msmc --fixedRecombination -t 50 -o TasmanianDevilSanger.Devil7_0.realigned_7Contigs5Mb_MSMCOutput TasmanianDevilSanger.Devil7_0.realigned_ContigGL834541.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL841583.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL841593.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL849903.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL849905.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL856749.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL857000.1_MSMCInput.txt
+
+# Bootstrap
+multihetsep_bootstrap.py --nr_bootstraps 20 --chunk_size 500000 --chunks_per_chromosome 10 --nr_chromosomes 7 ./Bootstrap TasmanianDevilSanger.Devil7_0.realigned_ContigGL834541.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL841583.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL841593.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL849903.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL849905.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL856749.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL857000.1_MSMCInput.txt
+
+parallel -j7 --nice 19 "msmc --fixedRecombination -t 4 -o TasmanianDevilSanger.Devil7_0.realigned_7Contigs5Mb_MSMCOutput_BS{} Bootstrap_{}/bootstrap_multihetsep.chr1.txt Bootstrap_{}/bootstrap_multihetsep.chr2.txt Bootstrap_{}/bootstrap_multihetsep.chr3.txt Bootstrap_{}/bootstrap_multihetsep.chr4.txt Bootstrap_{}/bootstrap_multihetsep.chr5.txt Bootstrap_{}/bootstrap_multihetsep.chr6.txt Bootstrap_{}/bootstrap_multihetsep.chr7.txt" ::: $(seq 7)
+
+## Without --fixedRecombination flag
+# MSMC
+msmc -t 50 -o TasmanianDevilSanger.Devil7_0.realigned_7Contigs5Mb_MSMCOutputNoFlag TasmanianDevilSanger.Devil7_0.realigned_ContigGL834541.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL841583.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL841593.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL849903.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL849905.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL856749.1_MSMCInput.txt TasmanianDevilSanger.Devil7_0.realigned_ContigGL857000.1_MSMCInput.txt
+
+
+
+### Top 50 contigs
+# Average depth on autosomes
+samtools view -u ../TasmanianDevilSanger.Devil7_0.realigned.bam\
+ GL849905.1 GL856749.1 GL834541.1 GL841583.1 GL841593.1 GL857000.1 GL849903.1 GL841204.1 GL834507.1 GL834743.1 GL841200.1 GL849604.1 GL834722.1 GL841543.1 GL849858.1 GL841494.1 GL849906.1 GL834466.1 GL849868.1 GL834618.1 GL861688.1 GL849915.1 GL856969.1 GL834646.1 GL861628.1 GL834651.1 GL834710.1 GL834453.1 GL849842.1 GL864891.1 GL861605.1 GL856966.1 GL861670.1 GL834609.1 GL849626.1 GL856746.1 GL834645.1 GL834732.1 GL849812.1 GL834451.1 GL864880.1 GL867584.1 GL834465.1 GL834540.1 GL861646.1 GL841302.1 GL856785.1 GL841376.1 GL849656.1 GL841589.1\
+ | samtools depth - | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}'
+
+Average =  50.6691
+Stdev =  22.3391
+
+# Generate input files (!! 2-lines cmd !! )
+parallel -j50 --nice 19 "samtools mpileup -EA -Q 20 -C 50 -u -r {} -f /localscratch/Refs/Sarcophilus_harrisii/Devil7_0_Raw/Sarcophilus_harrisii.DEVIL7.0.dna_rm.toplevel.fasta ../TasmanianDevilSanger.Devil7_0.realigned.bam | bcftools call -c -V indels | bamCaller.py 50.6691 TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCmask.bed.gz | gzip -c > TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMC.vcf.gz ;\
+generate_multihetsep.py --mask=TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCmask.bed.gz TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMC.vcf.gz > TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCInput.txt" ::: GL849905.1 GL856749.1 GL834541.1 GL841583.1 GL841593.1 GL857000.1 GL849903.1 GL841204.1 GL834507.1 GL834743.1 GL841200.1 GL849604.1 GL834722.1 GL841543.1 GL849858.1 GL841494.1 GL849906.1 GL834466.1 GL849868.1 GL834618.1 GL861688.1 GL849915.1 GL856969.1 GL834646.1 GL861628.1 GL834651.1 GL834710.1 GL834453.1 GL849842.1 GL864891.1 GL861605.1 GL856966.1 GL861670.1 GL834609.1 GL849626.1 GL856746.1 GL834645.1 GL834732.1 GL849812.1 GL834451.1 GL864880.1 GL867584.1 GL834465.1 GL834540.1 GL861646.1 GL841302.1 GL856785.1 GL841376.1 GL849656.1 GL841589.1
+
+msmc -t 50 -o TasmanianDevilSanger.Devil7_0.realigned_50LongestContigs_MSMCOutput_NoFlag \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849905.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856749.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834541.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841583.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841593.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL857000.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849903.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841204.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834507.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834743.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841200.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849604.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834722.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841543.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849858.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841494.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849906.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834466.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849868.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834618.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861688.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849915.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856969.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834646.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861628.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834651.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834710.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834453.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849842.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL864891.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861605.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856966.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861670.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834609.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849626.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856746.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834645.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834732.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849812.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834451.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL864880.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL867584.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834465.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834540.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861646.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841302.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856785.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841376.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849656.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841589.1_MSMCInput.txt
+
+
+
+## With --fixedRecombination flag
+
+msmc --fixedRecombination -t 20 -o TasmanianDevilSanger.Devil7_0.realigned_50LongestContigs_MSMCOutput \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849905.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856749.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834541.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841583.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841593.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL857000.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849903.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841204.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834507.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834743.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841200.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849604.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834722.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841543.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849858.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841494.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849906.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834466.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849868.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834618.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861688.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849915.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856969.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834646.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861628.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834651.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834710.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834453.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849842.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL864891.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861605.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856966.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861670.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834609.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849626.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856746.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834645.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834732.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849812.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834451.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL864880.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL867584.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834465.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834540.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861646.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841302.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856785.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841376.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849656.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841589.1_MSMCInput.txt
+
+
+
+
+
+
+
+
+http://dropcanvas.com/4uuw8
+
+
+
+
+
+
+
+
+
+## MSMC2
+module load gnu/4.8.0 gsl/1.16-gnu_4.8.0 dmd/2.067.0
+# modify makefile to include path of GSL libraries (thanks Graham)
+make
+/localscratch/Programs/msmc2-20160307/build/release/msmc2
+
+# Average depth on autosomes
+samtools view -u ../TasmanianDevilSanger.Devil7_0.realigned.bam\
+ GL849905.1 GL856749.1 GL834541.1 GL841583.1 GL841593.1 GL857000.1 GL849903.1 GL841204.1 GL834507.1 GL834743.1 GL841200.1 GL849604.1 GL834722.1 GL841543.1 GL849858.1 GL841494.1 GL849906.1 GL834466.1 GL849868.1 GL834618.1 GL861688.1 GL849915.1 GL856969.1 GL834646.1 GL861628.1 GL834651.1 GL834710.1 GL834453.1 GL849842.1 GL864891.1 GL861605.1 GL856966.1 GL861670.1 GL834609.1 GL849626.1 GL856746.1 GL834645.1 GL834732.1 GL849812.1 GL834451.1 GL864880.1 GL867584.1 GL834465.1 GL834540.1 GL861646.1 GL841302.1 GL856785.1 GL841376.1 GL849656.1 GL841589.1\
+ | samtools depth - | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}'
+
+Average =  50.6691
+Stdev =  22.3391
+
+# Generate input files (!! 2-lines cmd !! )
+parallel -j25 --nice 19 "samtools mpileup -EA -Q 20 -C 50 -u -r {} -f /localscratch/Refs/Sarcophilus_harrisii/Devil7_0_Raw/Sarcophilus_harrisii.DEVIL7.0.dna_rm.toplevel.fasta ../TasmanianDevilSanger.Devil7_0.realigned.bam | bcftools call -c -V indels | bamCaller.py 47.5546 TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCmask.bed.gz | gzip -c > TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMC.vcf.gz ;\
+generate_multihetsep.py --mask=TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCmask.bed.gz TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMC.vcf.gz > TasmanianDevilSanger.Devil7_0.realigned_Contig{}_MSMCInput.txt" ::: GL849905.1 GL856749.1 GL834541.1 GL841583.1 GL841593.1 GL857000.1 GL849903.1 GL841204.1 GL834507.1 GL834743.1 GL841200.1 GL849604.1 GL834722.1 GL841543.1 GL849858.1 GL841494.1 GL849906.1 GL834466.1 GL849868.1 GL834618.1 GL861688.1 GL849915.1 GL856969.1 GL834646.1 GL861628.1 GL834651.1 GL834710.1 GL834453.1 GL849842.1 GL864891.1 GL861605.1 GL856966.1 GL861670.1 GL834609.1 GL849626.1 GL856746.1 GL834645.1 GL834732.1 GL849812.1 GL834451.1 GL864880.1 GL867584.1 GL834465.1 GL834540.1 GL861646.1 GL841302.1 GL856785.1 GL841376.1 GL849656.1 GL841589.1
+
+# MSMC2
+/localscratch/Programs/msmc2-20160307/build/release/msmc2 -t 50 -o TasmanianDevilSanger.Devil7_0.realigned_7Contigs5Mb_MSMC2Output \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849905.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856749.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834541.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841583.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841593.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL857000.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849903.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841204.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834507.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834743.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841200.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849604.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834722.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841543.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849858.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841494.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849906.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834466.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849868.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834618.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861688.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849915.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856969.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834646.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861628.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834651.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834710.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834453.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849842.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL864891.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861605.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856966.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861670.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834609.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849626.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856746.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834645.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834732.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849812.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834451.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL864880.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL867584.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834465.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL834540.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL861646.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841302.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL856785.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841376.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL849656.1_MSMCInput.txt \
+TasmanianDevilSanger.Devil7_0.realigned_ContigGL841589.1_MSMCInput.txt
+
+
+
+error in parsing command line: object.Exception@model/data.d(57): Enforcement failed
+----------------
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(@safe std.regex.__T10RegexMatchTAxaS453std5regex8internal8thompson15ThompsonMatcherZ.RegexMatch std.exception.enforce!(Exception, std.regex.__T10RegexMatchTAxaS453std5regex8internal8thompson15ThompsonMatcherZ.RegexMatch).enforce(std.regex.__T10RegexMatchTAxaS453std5regex8internal8thompson15ThompsonMatcherZ.RegexMatch, lazy const(char)[], immutable(char)[], ulong)+0x88) [0x5151c8]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(void model.data.checkDataLine(const(char[]))+0xd2) [0x4f1c8a]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(ulong model.data.getNrHaplotypesFromFile(immutable(char)[])+0x8c) [0x4f1d5c]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(void msmc2.parseCommandLine(immutable(char)[][])+0x31a) [0x53ad2a]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(_Dmain+0x29) [0x53a9c9]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(_D2rt6dmain211_d_run_mainUiPPaPUAAaZiZ6runAllMFZ9__lambda1MFZv+0x1f) [0x548da3]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(void rt.dmain2._d_run_main(int, char**, extern (C) int function(char[][])*).tryExec(scope void delegate())+0x2a) [0x548cf6]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(void rt.dmain2._d_run_main(int, char**, extern (C) int function(char[][])*).runAll()+0x30) [0x548d5c]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(void rt.dmain2._d_run_main(int, char**, extern (C) int function(char[][])*).tryExec(scope void delegate())+0x2a) [0x548cf6]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(_d_run_main+0x1dc) [0x548c70]
+/localscratch/Programs/msmc2-20160307/build/release/msmc2(main+0x17) [0x542a37]
+/lib64/libc.so.6(__libc_start_main+0xfd) [0x3fafc1ed5d]
+
+
+
+
