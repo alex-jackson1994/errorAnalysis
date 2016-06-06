@@ -33,7 +33,7 @@ For further inquiries, I can be contacted at \href{mailto:aj123@internode.on.net
 GitHub: \url{https://github.com/alex-jackson1994/errorAnalysis}
 
 \section{Objective}
-Determine if there's a relationship between the lengths of contigs being analysed, population model (predictors) and the error (response) given by PSMC' (MSMC\cite{schiffels2014inferring} with two haplotypes). This will probably be done using mixed effects models.\\
+Determine if there is a relationship between the level/type of chromosomal fragmentation, population model (predictor variables) and the error (response variable) in PSMC' (MSMC\cite{schiffels2014inferring} with two haplotypes). This will probably be analysed using mixed effects models.\\
 
 \begin{algorithm}[H]
   \For{Each population model (3)}{
@@ -45,27 +45,31 @@ Determine if there's a relationship between the lengths of contigs being analyse
       }
     }
   }
+  Fit statistical model relating predictors to response.\\
   \caption{Outline of the simulation and MSMC analysis process}\label{overall}
 \end{algorithm}
 
-\subsection{Background}
-PSMC' gives an estimate of how population demographics change over time, by analysing heterozygousity of sites across a genome. However, real sequenced genomes will not always be nicely sorted into chromosomes. Often they will be assembled into smaller sections called contigs. We will simulate human genomes (MSMC was originally written to analyse humans) under the following conditions:
+\section{Details}
+PSMC' gives an estimate of how populations change over time, by analysing heterozygousity of sites across a genome (note: PSMC'/MSMC used interchangeably). However, real sequenced genomes will not always be nicely sorted into chromosomes. Often they will be assembled into smaller sections called contigs. We will simulate human genomes (as MSMC was originally written to analyse humans) under the following conditions:
 \begin{itemize}
 \item The length $L$ of the genome will be taken from a real human genome. For simplicity, \emph{only autosomes} will be considered.
-\item Three different population models will be considered. Take time $t$ as going from recent to ancient, i.e. $t=0$ is the more recent than $t=100$. These dynamics should be carefully considered, as we want them to fall into the time range where PSMC' can actually pick them up.
+\item Three different population models will be considered. In this document, take time $t$ as going from recent to ancient, i.e. $t=0$ is the more recent than $t=100$. These dynamics should be carefully considered, as we want them to fall into the time range where PSMC' can actually pick them up.
 \begin{itemize}
 \item Constant: $N_e(t)=N_0$.
 \item Exponential decrease: $N_e(t)=N_0e^{kt}$ for some realistic $k<0$.
-\item Bottleneck: $N_e(t)=?$
+\item Bottleneck:
+\begin{align*}
+  N_e(t) = \begin{cases}
+      N_0 & \text{if $0 < t < t_1$} \\
+      N_0\exp\left\{\ln(\frac{N_1}{N_0}) \frac{t-t_1}{t_2-t_1} \right\} & \text{if $t_1 < t < t_2$}\\
+      N_2 & \text{if $t_2 < t < \infty$}
+    \end{cases}
+\end{align*}
+
+  A quick outline of this potential ``bottleneck'' model follows. Going from ancient to present, the population sits at constant level $N_2$. At time $t_2$, there's a bottleneck, and the population instantaneously drops to $N_1$. There's exponential growth until the population reaches $N_0$ at time $t_1$. From $t_1$ until present, the population remains constant at $N_0$. Of course, a different bottleneck model may be desired.
 \end{itemize}
 \end{itemize}
 
-%\begin{algorithmic}
-%\State Set $L$.
-%\For{<text>}
-%<body>
-%\EndFor
-%\end{algorithmic}
 
 
 \subsection{Potential Whole Genome Simulators}
@@ -73,32 +77,31 @@ We want a simulator with the following properties.
 \begin{itemize}
 \item Able to simulate exponential growth.
 \item Able to be converted to a format which can be taken by MSMC.
-\item Able to simulate linkage disequilibrium.
-\item Uses the coalescent model, not forward model.
+\item Able to simulate linkage disequilibrium (maybe... this may be introducing too much complexity).
+\item Uses the coalescent model, not forward model (speed concerns?).
 \item Can handle human genome sizes (in the range of 2.6 Gbp).
+\item Can be converted to MSMC input format!
 \end{itemize}
 A number of simulators were considered.
 \begin{itemize}
-\item msHot-LITE (\url{https://github.com/lh3/foreign/tree/master/msHOT-lite}): This was used by Heng Li in his PSMC paper to simulate genomes. However, it has an upper size limit of roughly 10 Mbp.
+\item msHot-LITE (and ms, and msHot) (\url{https://github.com/lh3/foreign/tree/master/msHOT-lite}): This was used by Heng Li in his PSMC paper\cite{li2011inference}, and Schiffels, to simulate genomes. However, it has an upper size limit of roughly 10 Mbp.
 \item GENOME (\url{http://csg.sph.umich.edu//liang/genome/}): This doesn't appear to do exponential growth.
 \item GenomePop2 (\url{http://acraaj.webs.uvigo.es/GenomePop2.htm}): This can apparently output in ms-like format. Might go back to it later...
-\item MaCS (\url{https://github.com/gchen98/macs}): Looking at this right now. It CAN handle the 2.6 Gbp sizes needed, as well as the other things I believe. Also, it's very fast.
-\item scrm (\url{http://scrm.github.io/}): Recommended by Schiffels, but I haven't looked at it.
+\item \textbf{MaCS} (\url{https://github.com/gchen98/macs}): Looking at this right now. It CAN handle the 2.6 Gbp sizes needed, as well as the other things I believe. Also, it's very fast.
+\item \textbf{scrm} (\url{http://scrm.github.io/}): Recommended by Schiffels, but I haven't looked at it.
 \end{itemize}
 
 \subsubsection{MaCS}
-\textbf{UNITS!!!}
-
 For full detail, please refer to the MaCS README (\url{https://github.com/gchen98/macs/blob/master/README}), and the manual (\url{http://home.uchicago.edu/rhudson1/source/mksamples/msdir/msdoc.pdf}) for ms\cite{hudson2002generating}, from which MaCS is based upon. The MaCS README is fairly sparse, so I'd advise familiarising yourself with the relevant parts of the ms manual.
 
-The MaCS README contains two examples of running MaCS. I'd advise taking the random seed, which is included in \texttt{stderr}, and storing it from each run. Alternatively, you could just specify the seed and store that each time. Reproducibility is important.
+The MaCS README contains two examples of running MaCS. I'd advise taking the random seed, which is included in \texttt{stderr}, and storing it from each run. Alternatively, you could just specify the seed and store that each time. Reproducibility is important. From what I can gather, both \texttt{stderr} and \texttt{stdout} give useful things to use - simulated output goes to \texttt{stdout}, while tree statistics and other things go to \texttt{stderr}.
 
 Further information can be found by running \texttt{./macs}. Note that:
 \begin{itemize}
 \item \texttt{<samplesize>} should always be 2, as we are simulating a diploid genome.
 \item \texttt{<region in base pairs>} would be of the order of 2.6 Gbp. You should get this exactly from an empirical genome.
 \end{itemize}
-Switches of interest are: \texttt{-s} (sets seed), \texttt{-t} (sets mutation rate), \texttt{-r} (sets recombination rate), \texttt{-T} (outputs in a format that can be converted to the ms format), \texttt{-eG} (sets growth rate), and \texttt{-eN} (sets population size, sets growth rate to 0).
+Switches of interest are: \texttt{-s} (sets seed from the Mersenne Twister algorithm), \texttt{-t} (sets mutation rate in units of mutations per site per $4N_0$ generations), \texttt{-r} (sets recombination rate in units of recombinations per site per $4N_0$ generations), \texttt{-T} (outputs in Newick format), \texttt{-eG} (sets growth rate, presumably in $N_0$ units), and \texttt{-eN} (sets population size in $N_0$ unis, sets growth rate to 0).
 
 MaCS output should be able to be converted into the ms format via the included script \texttt{msformatter}. I've run this without errors, but haven't confirmed the ms format can then be converted to MSMC input format.
 
@@ -107,19 +110,19 @@ To convert from ms format to MSMC input format, use the script \texttt{ms2multih
 \subsection{Simulation Parameters}
 We will need the following parameters for the simulation.
 \begin{itemize}
-\item Genome size: obtaining this from an empirical human genome would be ideal. Remember, we are only considering autosomes.
+\item Genome size: obtaining this from an empirical human genome would be ideal. Remember, we are \emph{only considering autosomes}.
 \item Mutation rate: Julien suggests $1.25\times 10^{-8}$ mutations per bp per generation is the current best estimate. 
 \item Recombination rate: I don't know a good estimate.
 \item Population models (this defines $N_0$ as well). We originally had Julien give us suggestions for times/effective sizes for a constant-bottleneck model. However, I suggest you guys all sit down and figure out exactly where you would like past demographic events to happen (as we want to make sure MSMC can pick them up).
 \end{itemize}
-Apart from the ``chromosome-level'' of fragmentation, fragmentation models will have to be discussed. This includes finding a relevant empirical contig distribution, and some mathematical model for chromosomal fragmentation. Then you'll have to decide whether to do the fragmentation on the MaCS output, ms format, or the MSMC input.
+Apart from the ``chromosome-level'' of fragmentation, fragmentation models will have to be discussed. This includes finding a relevant empirical contig distribution, and some mathematical model for chromosomal fragmentation (e.g. Poisson). Then you'll have to decide whether to do the fragmentation on the MaCS output, ms format, or the MSMC input.
 
 \subsection{File Names And Data Frames}
-This is up to you, but when we did the (unsuccessful) PSMC analysis we used the file names to store information about the simulation parameters. For example, say we had a MSMC output file corresponding to population demographic ``Constant'', simulated genome 2, fragmentation model ``Empirical'', and fragmentation level ``3''. Then the output file would be called something like \texttt{Constant\_2\_Empirical\_3.txt}. We could then use regular expressions in R to extract ``Constant'' etc. for storing in a data frame.
+This is up to you, but when we did the (unsuccessful) PSMC analysis we used the file names to store information about the simulation parameters. For example, say we had a MSMC output file corresponding to population demographic ``Constant'', simulated genome 2, fragmentation model ``Empirical'', and fragmentation level ``3''. Then the output file would be called something like \texttt{Constant\_2\_Empirical\_3.txt}. We could then use regular expressions in R to extract ``Constant'' etc. for storing in a data frame. Of course, there are lots of other ways it could be done!
 
 See Table \ref{df} for an example of data frame we could use for storing results.
 \begin{table}[h]
-	\caption{Example data frame for storing analysis results}
+	\caption{Example data frame for storing analysis results. You might also want to add some summary statistics e.g. mean/variance of contig lengths.}
 	\begin{center}
 		\begin{tabular}{ccccc}
 			\hline
@@ -141,11 +144,13 @@ We define the \emph{error rate} $\Delta (s_1,s_2)$ between two functions $s_1(t)
 \begin{eqnarray}
 \Delta (s_1,s_2) = \int_{t_R}^{t_A} |s_1(t)-s_2(t)| \,dt, \label{errorRate}
 \end{eqnarray}
-for sensible limits of integration $t_R$ (recent) and $t_A$ (ancient). Treat recent time as time near 0, and ancient time as time near $\infty$. The interpretation of this is the absolute value of the area between the two curves, in the interval $(t_R,t_A)$. Consult with Ben on choosing these values - a suggestion was the 95\% confidence interval for the time of coalescence between two haplotypes.
+for sensible limits of integration $t_R$ (recent) and $t_A$ (ancient). Remember, treat recent time as time near 0, and ancient time as time towards $\infty$. The interpretation of this is the absolute value of the area between the two curves, in the interval $(t_R,t_A)$. Consult with Ben on choosing these values - a suggestion was the 95\% confidence interval for the time of coalescence between two haplotypes.
+
+The limits of integration $T_R$ and $t_A$ shpuld definitely ignore any data from the first time interval, and the last time interval. This is because Schiffels says \cite{schiffels2014inferring} ``the limits on the inference are given by the second and second-to-last boundaries, which correspond to the 2.5\% and 97.4\% quantile boundaries for the distribution of first coalescence times.''
 
 Is error going to be evaluated on a log scale?
 
-Are you going to compare to the ``truth'' (simulation parameters), or to the ``best you can do'' (what MSMC recovers from the chromosomal level of fragmentation)?
+Are you going to compare fragmented results to the ``truth'' (simulation parameters of population which we specify), or to the ``best you can do'' (what MSMC recovers from the chromosomal level of fragmentation)?
 
 \subsubsection{Calculating Errors}
 Over the 2015/16 summer, the main script we used for calculating errors in PSMC was the following.
@@ -176,16 +181,13 @@ Note that if you want to compare a ``true''  population model that involves curv
 
 \subsection{Running MSMC}
 \subsubsection{Theory}
-
-\textbf{Running MSMC. Link Graham the paper. Highlight the relevant parts, e.g difference from PSMC re: recombination rate estimates, time intervals. }
-
 MSMC splits time from 0 (recent) to $\infty$ (ancient) into discrete unit time intervals. It then makes an estimate of population in each time interval. It then makes an estimate of the effective population in each interval (based on the heterozygousity of the genome).
 
 The intervals are determined using the formula
 \begin{eqnarray}
   t_i = \frac{-\ln (1-\frac{i}{n})}{{M\choose 2}} \label{timeInts}
 \end{eqnarray}
-for $i = 0, 1, \dots, n$. Here, $t_i$ is the time boundary of the particular interval, $n$ is the number of intervals (which you can define when running \texttt{msmc}, and $M$ is the number of haplotypes. As we will be looking at diploid individuals, the formula reduces to $t_i = -\ln (1-\frac{i}{n})$.
+for $i = 0, 1, \dots, n$. Here, $t_i$ is the time boundary of the particular interval, $n$ is the number of intervals (which you can define when running \texttt{msmc}), and $M$ is the number of haplotypes. As we will be looking at diploid individuals, the formula reduces to $t_i = -\ln (1-\frac{i}{n})$.
 
 The unit intervals can be combined. For example, if you were running MSMC using the command 
 \begin{lstlisting}
@@ -195,7 +197,7 @@ then this would be instructing the program to use 30 unit intervals ($n = 30$). 
 \begin{lstlisting}
 msmc -p 10*1+15*2 [...]
 \end{lstlisting}
-then the program would use 10 unit intervals followed by 15 double-unit intervals ($n = 40$) (this also happens to be the defaults pattern). The left of \texttt{10*1+15*2} corresponds to recent time and the right corresponds to ancient time and the right corresponds to ancient time.
+then the program would use 10 unit intervals followed by 15 double-unit intervals ($n = 40$) (this also happens to be the default pattern). The left of \texttt{10*1+15*2} corresponds to recent time and the right corresponds to ancient time and the right corresponds to ancient time.
 
 In the MSMC and PSMC papers, I have not found any justification for the use of particular combinations of time intervals.
 
@@ -223,13 +225,13 @@ You and Julien probably have a better idea of this than me. This creates the MSM
 
 The next part is a copy from one of my files, 
 \begin{lstlisting}
-/localscratch/jsoubrier/Bison\_Genomes/CowRef/AlexPSMCMSMC\_Comparison/labBook
+/localscratch/jsoubrier/Bison_Genomes/CowRef/AlexPSMCMSMC_Comparison/labBook
 \end{lstlisting}
 and should highlight relevant MSMC commands. Further information can be found on the GitHub guide (\url{https://github.com/stschiff/msmc/blob/master/guide.md}) or by running \texttt{msmc} on its own.
 \begin{lstlisting}
 msmc -t 50 -p 40*1 -i 20 -o EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput EuropeanBison.Cow_UMD3_1.realigned_chr1_MSMCInput.txt EuropeanBison.Cow_UMD3_1.realigned_chr2_MSMCInput.txt [...] | at now
 \end{lstlisting}
-The switches of interest are: \texttt{-t} (sets number of threads to run on), \texttt{-p} (sets how MSMC divides up time from now to infinity in the past - more on that later), \texttt{-i} (number of iterations), and \texttt{-o} (set the name of the output file). The \texttt{--fixedRecombination} flag should be left out for running on two haplotypes (our situation), according to the guide.
+The switches of interest are: \texttt{-t} (sets number of threads to run on), \texttt{-p} (set how MSMC choooses and combines its time intervals), \texttt{-i} (number of iterations... I don't now a good way to choose this, I've been using 20), and \texttt{-o} (set the name of the output file). The \texttt{--fixedRecombination} flag should be left out for running on two haplotypes (our situation), according to the guide.
 
 Following the name of the output file are the MSMC input files (there were 29 in this case). This can make the commands long and messy. Finally, the \texttt{| at now} allowed me to leave this running on the server and then log off.
 
@@ -239,7 +241,7 @@ I am not sure how to do this, but presumable it would go something like this:
 \item Run MaCS (or similar) with the \texttt{-T} flag to output in the appropriate format.
 \item Convert this to ms output format with the \texttt{msformatter} script which comes with MaCS.
 \item Convert this to MSMC input format with \texttt{ms2multihetsep.py} included with Schiffels' MSMC tools.
-\item (Fragment somewhere in here.)
+\item (Fragment somewhere in above.)
 \item Run MSMC as above.
 \end{enumerate}
 
@@ -250,6 +252,12 @@ See the attached example file \texttt{plotMSMC\_PSMC.R} for an annotated R file 
 \section{Other Suggestions}
 \subsection{Reduction In Complexity}
 Julien suggested that we could do some trials to see if we recover the same dynamics with say 5 chromosomes, instead of the full 23. This would significantly decrease the run-time of the whole progress. However, fragmenting 5 chromosomes may be quite different to fragmenting 23 chromosomes.
+
+\subsection{Looking At Bias}
+We are more looking at the variability in the MSMC estimate. To look at bias, this would probably require a different definition of error rate.
+
+\subsection{Hybridisation}
+TBD.
 
 \subsection{How To Use PSMC}
 Should I include this?
