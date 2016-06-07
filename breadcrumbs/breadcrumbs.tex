@@ -146,7 +146,7 @@ We define the \emph{error rate} $\Delta (s_1,s_2)$ between two functions $s_1(t)
 \end{eqnarray}
 for sensible limits of integration $t_R$ (recent) and $t_A$ (ancient). Remember, treat recent time as time near 0, and ancient time as time towards $\infty$. The interpretation of this is the absolute value of the area between the two curves, in the interval $(t_R,t_A)$. Consult with Ben on choosing these values - a suggestion was the 95\% confidence interval for the time of coalescence between two haplotypes.
 
-The limits of integration $T_R$ and $t_A$ shpuld definitely ignore any data from the first time interval, and the last time interval. This is because Schiffels says \cite{schiffels2014inferring} ``the limits on the inference are given by the second and second-to-last boundaries, which correspond to the 2.5\% and 97.4\% quantile boundaries for the distribution of first coalescence times.''
+The limits of integration $T_R$ and $t_A$ should definitely ignore any data from the first time interval, and the last time interval. This is because Schiffels says \cite{schiffels2014inferring} ``the limits on the inference are given by the second and second-to-last boundaries, which correspond to the 2.5\% and 97.4\% quantile boundaries for the distribution of first coalescence times.''
 
 Is error going to be evaluated on a log scale?
 
@@ -188,6 +188,8 @@ The intervals are determined using the formula
   t_i = \frac{-\ln (1-\frac{i}{n})}{{M\choose 2}} \label{timeInts}
 \end{eqnarray}
 for $i = 0, 1, \dots, n$. Here, $t_i$ is the time boundary of the particular interval, $n$ is the number of intervals (which you can define when running \texttt{msmc}), and $M$ is the number of haplotypes. As we will be looking at diploid individuals, the formula reduces to $t_i = -\ln (1-\frac{i}{n})$.
+
+I am still a bit confused about exactly what units MSMC outputs its times in. Sorry!
 
 The unit intervals can be combined. For example, if you were running MSMC using the command 
 \begin{lstlisting}
@@ -231,7 +233,7 @@ and should highlight relevant MSMC commands. Further information can be found on
 \begin{lstlisting}
 msmc -t 50 -p 40*1 -i 20 -o EuropeanBison.Cow_UMD3_1.realigned_AllAutosomes_MSMCOutput EuropeanBison.Cow_UMD3_1.realigned_chr1_MSMCInput.txt EuropeanBison.Cow_UMD3_1.realigned_chr2_MSMCInput.txt [...] | at now
 \end{lstlisting}
-The switches of interest are: \texttt{-t} (sets number of threads to run on), \texttt{-p} (set how MSMC choooses and combines its time intervals), \texttt{-i} (number of iterations... I don't now a good way to choose this, I've been using 20), and \texttt{-o} (set the name of the output file). The \texttt{--fixedRecombination} flag should be left out for running on two haplotypes (our situation), according to the guide.
+The switches of interest are: \texttt{-t} (sets number of threads to run on), \texttt{-p} (set how MSMC chooses and combines its time intervals), \texttt{-i} (number of iterations... I don't now a good way to choose this, I've been using 20), and \texttt{-o} (set the name of the output file). The \texttt{--fixedRecombination} flag should be left out for running on two haplotypes (our situation), according to the guide.
 
 Following the name of the output file are the MSMC input files (there were 29 in this case). This can make the commands long and messy. Finally, the \texttt{| at now} allowed me to leave this running on the server and then log off.
 
@@ -239,8 +241,8 @@ Following the name of the output file are the MSMC input files (there were 29 in
 I am not sure how to do this, but presumable it would go something like this:
 \begin{enumerate}
 \item Run MaCS (or similar) with the \texttt{-T} flag to output in the appropriate format.
-\item Convert this to ms output format with the \texttt{msformatter} script which comes with MaCS.
-\item Convert this to MSMC input format with \texttt{ms2multihetsep.py} included with Schiffels' MSMC tools.
+\item Convert this to ms output format with the \texttt{msformatter} script which comes with MaCS. See \ref{sec:ms} for more detail on this file format.
+\item Convert this to MSMC input format with \texttt{ms2multihetsep.py} included with Schiffels' MSMC tools. 
 \item (Fragment somewhere in above.)
 \item Run MSMC as above.
 \end{enumerate}
@@ -259,8 +261,151 @@ We are more looking at the variability in the MSMC estimate. To look at bias, th
 \subsection{Hybridisation}
 TBD.
 
-\subsection{How To Use PSMC}
-Should I include this?
+\section{PSMC}
+\subsection{Background}
+The Pairwise Sequentially Markovian Coalescent (PSMC) model \cite{li2011inference} is a method for estimating past population dynamics based on the  genome of a single individual. PSMC uses the heterozygousity of the genome to estimate where recombination events have occurred in the genome. These estimates are found using a Hidden Markov Model (for an introduction to HMMs, see the paper by Rabiner \cite{rabiner1989tutorial}). A genome is split into many consecutive, non-overlapping 100 bp ``bins''. The observations are whether each of the bins contains a heterozygous pair (``1''), is homozygous (``0''), or data is missing (``.''). The state space is the set of non-overlapping time intervals from the present back in time. The hidden state is the time interval into which the TMRCA for each bin falls. This allows PSMC to then construct a population estimate over a period of time. 
+
+For further detail, see the paper by Li \cite{li2011inference} (the Methods section in particular gives a starting point) as well as the supplementary information for detail, and the package's README at \url{https://github.com/lh3/psmc}.
+\subsection{PSMC vs MSMC}
+The key differences between PSMC and MSMC are as follows:
+\begin{itemize}
+\item PSMC can only be run on a diploid genome, while MSMC can be run on more than two haplotypes.
+\item PSMC partitions the genome into 100 bp ``bins''. Each bin is then assigned either heterozygous or homozygous (or missing). MSMC does not need this, as its software is more efficient.
+\item MSMC allows for a ``null recombination'' event, which if I've interpreted Ben correctly, is a recombination which immediately coalesces back into the same branch... or something. PSMC ignores this.
+\item PSMC and MSMC have different ways of splitting up time from 0 to infinity. MSMC's formula is 
+\begin{align*}
+t_i = \frac{-\ln (1-\frac{i}{n})}{{M\choose 2}}
+\end{align*}
+as mentioned above. PSMC's formula is 
+\begin{align*}
+t_i = 0.1\exp\left\{ \frac{i}{n}\ln(1+10T_{\text{max}}) \right\},
+\end{align*}
+for $i = 0, 1, \dots, n$. The parameter $T_{\text{max}}$ is the maximum TMRCA, which can be specified when running \texttt{psmc} using the \texttt{-t} switch (in units of $2N_0$, the default is 15). PSMC output is scaled to $2N_0$ - unfortunately, I'm not sure what the units are in the above equation.
+
+For an equivalent amount of time intervals, PSMC's time intervals reach more into recent time than MSMC's do. Nigel thinks this is because recent estimates are rubbish, so MSMC effectively ignores them.
+\item Apparently, MSMC estimates recombination rate better than PSMC.
+\item There are probably also some subtle mathematical differences which Ben and Jono will have to go over when they analyse the equations.
+\item The underlying model of PSMC is the SMC model\cite{mcvean2005approximating}, while the underlying model of PSMC' is the SMC' model\cite{marjoram2006fast}.
+\end{itemize}
+
+\subsection{Running PSMC On Real Data}
+Similarly to MSMC, we start with a \texttt{fasta} and a \texttt{bam}. We use samtools and related software to produce a \texttt{fastq} output file. This uses the kangaroo as an example.
+\begin{lstlisting}
+samtools mpileup -EA -Q20 -C50 -u -f Macropus_eugenii.Meug_1.0.dna_rm.toplevel.fasta Kangaroo.Meug_1_0.realigned.bam | bcftools call -c | vcfutils.pl vcf2fq | gzip > mpileupedKangaroo.fq.gz
+\end{lstlisting}
+We then convert the \texttt{fastq} to the PSMC input format, \texttt{psmcfa} (see Appendix \ref{sec:psmcfa} for detail on this format). The \texttt{fq2psmcfa} script is included with PSMC's utils.
+\begin{lstlisting}
+fq2psmcfa redKangaroo.fq.gz > redKangaroo.psmcfa
+\end{lstlisting}
+We then run PSMC (here using the bison example). Switches used here are \texttt{-p} (specifies number of time intervals and how they're combined, like in MSMC) and \texttt{-N}, the number of iterations.
+\begin{lstlisting}
+/localscratch/Programs/psmc/psmc -p 40*1 -N 20 EuropeanBisonFullGenome29Autosomes.psmcfa > EuropeanBison29Autosomes_Int40*1_Iter20.psmc | at now &
+\end{lstlisting}
+We still need to extract the data from PSMC if we wish to plot it, or analyse the error. Shaun wrote a script, \texttt{removeDataFromPSMC.sh}, which does this for us (in the \texttt{scripts} folder). It is run as follows. You will still need the \texttt{psmc} file to obtain $\theta_0$, which is required for plotting PSMC output (see the example \texttt{plotMSMC\_PSMC.R}).
+\begin{lstlisting}
+./removeDataFromPSMC.sh PSMC/EuropeanBison29Autosomes_Int40*1_Iter20.psmc > PSMC/EuropeanBison29Autosomes_Int40*1_Iter20.psmcData
+\end{lstlisting}
+
+\subsection{Running PSMC On Simulated Data}
+If you simulate your genome in the \texttt{ms} format, Heng Li has written the script \texttt{ms2psmcfa.pl} to convert to the \texttt{psmcfa} format. This is included in the PSMC utils.
+
+If you use \texttt{msHOT-lite} (probably not recommended) to run your simulation, you need to use the \texttt{-l} switch to ensure the format is correct for PSMC. If you use MaCS or something similar, I'm not sure of what you'll have to do. MaCS' \texttt{msformatter} script might be adequate.
+
+\begin{lstlisting}
+msHOT-lite 2 1 -t 60000 -r 10000 1000000 -eN 1 2 -eN 2 4 -l > output.ms
+perl ms2psmcfa.pl input.ms > output.psmcfa
+\end{lstlisting}
+
+\subsection{Goodness of Fit, And Correcting for False Negatives}
+Li \cite{li2011inference} has devised methods for checking goodness of fit, but I don't understand how to test this. In Section 2.2 of the Supplementary Information, he gives detail. There does not appear to be a script for extracting the statistics though.
+
+In the S.I., Li says that you can check $C_\sigma\pi_k$ for overfitting. If it's small (e.g. less than 20), you shouldn't trust the estimates of $\lambda_k$. I'm not sure how to get this value though.
+
+In Appendix II of the PSMC README file, Li talks about correcting for false negatives in the case of low coverage (for example, the kangaroo only had 55\% coverage). I'm not sure how to estimate this.
+
+\subsection{Scripts Which Might Be Useful}
+\begin{table}[h]
+\begin{tabular}{p{6.5cm}p{8.5cm}}
+  \hline
+  \textbf{Name} & \textbf{Description} \\ 
+  \hline
+  \texttt{combinePsmcfa.sh} & Combines all contigs in a \verb|.psmcfa| file to create one giant contig! \\ \hline
+  \parbox[t]{5cm}{\texttt{findNLargestContigs.py} *} & From a \texttt{psmcfa} file, creates a new \texttt{psmcfa}, only containing data from the \texttt{N} largest contigs (\texttt{N} user-specified) Uses \texttt{python3}.\\ \hline
+  \texttt{growthDataSlidingWindowError.R} & Does a sliding window-style error analysis. \\ \hline
+  \parbox[t]{5cm}{\texttt{removeDataFromPSMC.sh} *} & Extracts time, population estimates etc. from \texttt{psmc} files, in a tab-delimited format.\\ \hline
+  \texttt{removeRandomContigs.py} & Removes contigs randomly from a \verb|.psmcfa| file.\\ \hline  
+  \texttt{removeRandomPartsFromPsmcfa.py} & Removes lines randomly from a \verb|.psmcfa| file.\\ \hline  
+  \parbox[t]{5cm}{\texttt{StringExtraction\_ErrorAnalysis.R}} & Extracts information about the specific simulation with regular expressions. Runs error analysis and creates data frame. Well commented, but very messy though.\\ \hline
+\end{tabular}
+\end{table}
+
+
+\appendix
+\section{File Types}
+Thanks to Shaun Barker, who wrote this over the summer.
+\subsection{MS (.ms)}\label{sec:ms}
+	MS (.ms) files are simulated output from msHOT-lite (as well as MS, SCRM and other MS derivatives). It was written by Heng Li (who also created the PSMC software and others software used in bioinformatics). It contains a list of genome fragments (e.g. chromosomes/contigs/scaffolds), and in each of those fragments it lists the positions of heterozygous pairs as well as the type. The file begins with the call that created the file then each chromosome generated is listed. Each chromosome is stored between a \verb|@begin| and \verb|@end| statement. An example of an MS file can be seen in Figure \ref{msFile}.
+	\begin{figure}[h]
+		\begin{lstlisting}
+		./msHOT-lite 2 1 -t 30000 -r 6000 300000 -eN 0.01 0.1 -eN 0.06 1 -eN 0.2 0.5 -eN 1 1 -eN 2 2 -l 
+		//
+		@begin 11765
+		300000
+		37295	10
+		81727	01
+		104834	01
+		131283	01
+		191522	10
+		298343	01
+		@end
+		\end{lstlisting}
+		\caption{An example of a MS file.}
+		\label{msFile}
+	\end{figure}
+For further detail, see the ms paper by Hudson REF and the msHOT-lite repository at \url{}.
+
+\subsection{PSMC Input Files (.psmcfa)}\label{sec:psmcfa}
+PSMC input files (.psmcfa) are plain text files (see Figure \ref{psmcfa}) generated by many of the utilities provided alongside PSMC. They are the only input files required by PSMC. The .psmcfa files contain a list of chromosomes/contigs/etc. and 60 character wide lines that denote where heterozygous pairs occur. Each character in the lines represent the bin  $[100i,100i+100)$ along the sequence, for each $i$ sequential non-overlapping 100bp bin along length of the sequence. The character is K if there is a heterozygous pair in that bin of the sequence, T if the bin is completely made of homozygous pairs, and N if the data is too low quality or missing.
+	\begin{figure}[h]
+		\begin{lstlisting}
+		>thisIsTheFirstSequenceName
+		TKTKTKKTKTKTKTKTKKTKTKTKKKKKKKKTTTKKTKTKTKTKTKTKKTKTTKTKTKTK
+		KKKKTKKKKTKKKKKKKKTTTTTTTTTKKTKTKKKKKKKKKKKKKKKKKKKKKKKKKKTT
+		TTTTTTTTTTTTTKKKKKKKKKKTKKKKTKKKKKKKKKKKKKKKKKKKTTKKKKKKKKKK
+		TKKKTKTKKTKTKKTKTTTKTKTKTKTKTTKKTTKTKTKKKTKTKTKTKKTTTKTKTTKK
+		>thisIsTheSecondSequenceName
+		KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+		KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+		TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTKTTTTTTTTTTTTTTTTTTTTT
+		TTTTTTTTTTTKTTTTTTTTTTTTTTTTTKTTTTTTTTTTTTTTTTTTTTTTTTTKTTTT
+		\end{lstlisting}
+		\caption{An example of a .psmcfa file.}\label{psmcfa}
+	\end{figure}
+	
+\subsection{PSMC Output Files (.psmc)}
+The .psmc output files are plain text files outputted by PSMC. They contain details on the iterations performed by the program and the values. They all have a header describing the file itself (see Figure \ref{psmcHeader}) and this should be read to attempt to understand the output. The final table in the .psmc file is the ``final'' result after 20 iterations of expectation-maximisation, and can be extracted with the \verb|removeDataFromPSMC.sh| script.
+
+Note: According to a comment by Heng Li at \url{https://hengli.uservoice.com/forums/152783-general/suggestions/6787405-shouldn-t-the-pi-k-column-in-the-psmc-output-be-be}, the \verb|\pi_k| column is not actually \verb|\pi_k|. It may be \verb|\sigma_k| instead.
+
+	\begin{figure}[h]
+		\begin{lstlisting}
+                  CC
+                  CC	Brief Description of the file format:
+                  CC	  CC  comments
+                  CC	  MM  useful-messages
+                  CC	  RD  round-of-iterations
+                  CC	  LL  \log[P(sequence)]
+                  CC	  QD  Q-before-opt Q-after-opt
+                  CC	  TR  \theta_0 \rho_0
+                  CC	  RS  k t_k \lambda_k \pi_k \sum_{l\not=k}A_{kl} A_{kk}
+                  CC	  DC  begin end best-k t_k+\Delta_k max-prob
+		\end{lstlisting}
+		\caption{The header description of a .psmc file.}\label{psmcHeader}
+	\end{figure}
+
+The output files generated by PSMC are a (roughly) tab delimited text format, where the first two characters on each line defines what values are on the line. The output files always contain a header which gives some information on the format, and then parameter estimates for each iteration of the Baum-Welch algorithm used in PSMC. The last table contains the estimates from the final iteration, this is the data we used for our analysis. The last table can be extracted as a tab delimited table using the script \verb|removeDataFromPSMC.sh|. This script takes a \verb|.psmc| output file as its input and then outputs the final table in the file as a tab delimited text file.
+
+PSMC gives scaled output \cite{li2011inference}. The time $t_k$ is in terms of 2$N_0$ generations. The population given is in terms of $\lambda_kN_0$, which is the proportion relative to $N_0$. $N_0$ is defined as ``effective population size'', but what that means specifically is unclear. $N_0$ can be obtained by the formula $N_0=\theta/(4\mu s)$.
 
 \bibliographystyle{plain}
 \bibliography{../references/references}{}
